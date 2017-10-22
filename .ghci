@@ -1,0 +1,5 @@
+:set -XDataKinds
+:set -XTypeOperators
+:set -XTypeApplication
+:set -XRankNTypes
+:set -XGADTs

@@ -1,0 +1,10 @@
+resolver: lts-9.10
+
+packages:
+- '.'
+
+extra-deps:
+- indexed-0.1.3
+- indexed-extras-0.2
+- bifunctors-5.3
+- CTRex-0.6
