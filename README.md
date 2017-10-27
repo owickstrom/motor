@@ -3,7 +3,7 @@
 *Motor* is an experimental Haskell library for building finite-state
 machines with type-safe transitions and effects. It draws inspiration
 from the Idris
-[ST](http:/*docs.idris-lang.org*en*latest*st/state.html) library.
+[ST](http://docs.idris-lang.org/en/latest/st/state.html) library.
 
 ## Usage
 
