@@ -7,7 +7,8 @@ from the Idris
 
 ## Usage
 
-See the [Motor module documentation on Hackage] for detailed usage.
+See the [Motor module documentation on
+Hackage](http://hackage.haskell.org/package/motor) for detailed usage.
 
 ## Examples
 
