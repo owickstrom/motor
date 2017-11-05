@@ -1,0 +1,62 @@
+name:                motor
+version:             0.1.1.0
+synopsis:
+  Type-safe effectful state machines in Haskell
+description:
+  /Motor/ is an experimental Haskell library for building finite-state
+  machines with type-safe transitions and effects. It draws inspiration
+  from the Idris [ST
+  ](http://docs.idris-lang.org/en/latest/st/state.html) library. See the
+  "Motor.FSM" module for documentation.
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Oskar Wickström
+maintainer:          oskar.wickstrom@gmail.com
+copyright:           Oskar Wickström
+category:            Control
+build-type:          Simple
+extra-source-files:
+  CHANGELOG.md
+  README.md
+cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: https://github.com/owickstrom/motor
+
+library
+  exposed-modules:     Motor.FSM
+                     , Motor.FSM.Class
+                     , Motor.FSM.Sugar
+                     , Motor.FSM.Logging
+                     , Motor.FSM.TH
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       CTRex
+                     , base >=4.9 && <5
+                     , indexed
+                     , indexed-extras
+                     , reflection
+                     , template-haskell >= 2.11.1.0
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+                       -fno-warn-unticked-promoted-constructors
+
+test-suite spec
+  type:              exitcode-stdio-1.0
+  other-modules:     Motor.FSMSpec
+                   , Motor.FSMSpec.Game
+  hs-source-dirs:    test
+  main-is:           Main.hs
+  build-depends:     base
+                   , indexed
+                   , indexed-extras
+                   , CTRex
+                   , motor
+  ghc-options:       -Wall
+                     -fno-warn-orphans
+                     -fno-warn-missing-signatures
+                     -fno-warn-unticked-promoted-constructors
+                     -fno-warn-name-shadowing
+  default-language:  Haskell2010

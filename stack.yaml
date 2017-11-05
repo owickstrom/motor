@@ -1,7 +1,7 @@
 resolver: lts-9.10
 
 packages:
-- '.'
+- 'motor'
 
 extra-deps:
 - indexed-0.1.3
