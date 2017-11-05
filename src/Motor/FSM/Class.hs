@@ -35,7 +35,7 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
   enter :: Name n -> b -> m r (n ::= b :| (r :- n)) ()
   -- | Run another 'MonadFSM' computation, with empty resource rows,
   -- in this computation.
-  call :: m Empty Empty () -> m r r ()
+  call :: m Empty Empty a -> m r r a
 
 -- | A name of a resource, represented using a 'Symbol'.
 data Name (n :: Symbol) where
