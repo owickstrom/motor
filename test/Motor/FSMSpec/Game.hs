@@ -10,7 +10,7 @@
 {-# LANGUAGE TypeOperators              #-}
 module Motor.FSMSpec.Game where
 
-import           Prelude                hiding (log)
+import           Prelude                hiding (log, (>>))
 
 import           Control.Monad.Indexed
 import           Control.Monad.IO.Class
@@ -87,12 +87,8 @@ testTwoDeletes =
 
 testTwoAddDeletes ::
      Game m
-  => Actions m '[ "hero2" !- State m Standing
-                , "hero1" !- State m Standing
-                , "hero2" !+ State m Standing
-                , "hero1" !+ State m Standing
-                ] r ()
-testTwoAddDeletes = do
+  => NoActions m r ()
+testTwoAddDeletes = call $ do
   spawn hero1
   spawn hero2
   perish hero1
@@ -101,15 +97,10 @@ testTwoAddDeletes = do
     (>>) a = (>>>=) a . const
 
 testGame :: Game m => OnlyActions m '[] ()
-testGame = testTwoAdds >> testTwoDeletes
+testGame = testTwoAdds >> testTwoDeletes >> testTwoAddDeletes
   where
     (>>) a = (>>>=) a . const
 
 
-run :: Monad m => GameImpl m Empty Empty () -> m ()
-run g = runFSM (runGameImpl g)
-
 runIO :: IO ()
-runIO = do
-  run testGame
-  putStrLn "Game over."
+runIO = runFSM (runGameImpl testGame)

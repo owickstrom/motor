@@ -33,6 +33,9 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
   delete :: Name n -> m r (r :- n) ()
   -- | Replaces the state of an existing resource named by its 'Name'.
   enter :: Name n -> b -> m r (n ::= b :| (r :- n)) ()
+  -- | Run another 'MonadFSM' computation, with empty resource rows,
+  -- in this computation.
+  call :: m Empty Empty () -> m r r ()
 
 -- | A name of a resource, represented using a 'Symbol'.
 data Name (n :: Symbol) where

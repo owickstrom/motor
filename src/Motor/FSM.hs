@@ -117,6 +117,7 @@ instance Monad m => MonadFSM (FSM m) where
   enter (Name :: Name n) x = FSM (imodify $ \s -> lbl := x .| (s .- lbl))
     where
       lbl = Label :: Label n
+  call (FSM ma) = FSM (ilift (fst <$> runIxStateT ma empty))
 
 {- $usage
 The central finite-state machine abstraction in Motor is the 'MonadFSM' type class.
@@ -287,11 +288,26 @@ doFourThings =
   >>>= \_ -> perish hero2
 @
 
-This is obviously quite clumsy. If anyone has ideas on how to fix or
-work around it, /please get in touch/.
-
 Had the @r@ been replaced by @Empty@ in the type signature above, it could
 have had type @NoActions m Empty ()@ instead.
+
+If the computation removes all resources that it creates, i.e. that it
+could be run as @NoActions m Empty ()@, you can use 'call' to run it
+in a row-polymorphic computation without having to list all actions:
+
+@
+doFourThings ::
+     Game m
+  => NoActions m r ()
+doFourThings = call $
+  spawn hero1
+  >>>= \_ -> spawn hero2
+  >>>= \_ -> perish hero1
+  >>>= \_ -> perish hero2
+@
+
+In a future version, 'call' might support the rows of the called
+computation being subsets of the resulting computation's rows.
 -}
 
 
