@@ -1,0 +1,53 @@
+name:                motor-reflection
+version:             0.1.1.0
+synopsis:
+  Reflect on Motor FSM typeclasses to obtain runtime representations.
+-- description:
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Oskar Wickström
+maintainer:          oskar.wickstrom@gmail.com
+copyright:           Oskar Wickström
+category:            Control
+build-type:          Simple
+extra-source-files:
+  CHANGELOG.md
+  README.md
+cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: https://github.com/owickstrom/motor
+
+library
+  exposed-modules:     Motor.FSM.Reflection
+                       Motor.FSM.Reflection.Event
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base >=4.9 && <5
+                     , template-haskell >= 2.11.1.0
+                     , text
+                     , motor
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+                       -fno-warn-unticked-promoted-constructors
+
+test-suite spec
+  type:              exitcode-stdio-1.0
+  other-modules:     Motor.FSM.ReflectionSpec
+  hs-source-dirs:    test
+  main-is:           Spec.hs
+  build-depends:     base
+                   , indexed
+                   , CTRex
+                   , hspec
+                   , hspec-discover
+                   , motor
+                   , motor-reflection
+  ghc-options:       -Wall
+                     -fno-warn-orphans
+                     -fno-warn-missing-signatures
+                     -fno-warn-unticked-promoted-constructors
+                     -fno-warn-name-shadowing
+  default-language:  Haskell2010

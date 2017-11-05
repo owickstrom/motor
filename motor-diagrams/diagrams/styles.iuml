@@ -1,0 +1,25 @@
+hide circle
+
+skinparam dpi 300
+
+skinparam shadowing false
+
+skinparam defaultFontSize 14
+skinparam defaultFontName Noto Sans
+
+skinparam class {
+  BackgroundColor #eeeeee
+  ArrowColor #333333
+  BorderColor #333333
+}
+
+skinparam state {
+  BackgroundColor #eeeeee
+  BorderColor #333333
+  FontStyle bold
+}
+
+skinparam arrow {
+  FontStyle italic
+  ArrowColor #333333
+}

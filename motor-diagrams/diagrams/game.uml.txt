@@ -1,0 +1,6 @@
+@startuml
+[*] --> Standing : spawn
+Standing --> Jumping : jump
+Jumping --> Standing : land
+Standing --> [*] : perish
+@enduml
