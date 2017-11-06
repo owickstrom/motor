@@ -1,8 +1,9 @@
 name:                motor-reflection
 version:             0.2.0.0
 synopsis:
+  Reflect on Motor FSM typeclasses to obtain runtime representations
+description:
   Reflect on Motor FSM typeclasses to obtain runtime representations.
--- description:
 license:             MPL-2.0
 license-file:        LICENSE
 author:              Oskar Wickström

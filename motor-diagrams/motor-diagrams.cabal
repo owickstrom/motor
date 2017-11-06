@@ -2,7 +2,8 @@ name:                motor-diagrams
 version:             0.2.0.0
 synopsis:
   Generate state diagrams from Motor FSM typeclasses
--- description:
+description:
+  Generate state diagrams from Motor FSM typeclasses.
 license:             MPL-2.0
 license-file:        LICENSE
 author:              Oskar Wickström
