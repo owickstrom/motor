@@ -10,10 +10,19 @@ from the Idris
 See the [Motor module documentation on
 Hackage](http://hackage.haskell.org/package/motor) for detailed usage.
 
+## Packages
+
+* [motor](motor/) — the core of Motor.
+* [motor-reflection](motor-reflection/) — reflect on typeclasses
+  following Motor FSM conventions.
+* [motor-diagrams](motor-diagrams/) — use value-representations from
+  `motor-reflection` to generate diagrams.
+
 ## Examples
 
-* [Door](examples/Door.hs)
+* [Door](motor/examples/Door.hs)
 
 ## License
 
-[Mozilla Public License Version 2.0](LICENSE)
+Mozilla Public License Version 2.0, see `LICENSE` file in each
+package.

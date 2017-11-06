@@ -1,0 +1,25 @@
+hide circle
+
+skinparam dpi 150
+
+skinparam shadowing false
+
+skinparam defaultFontSize 14
+skinparam defaultFontName Ubuntu
+
+skinparam class {
+  BackgroundColor #eeeeee
+  ArrowColor #333333
+  BorderColor #333333
+}
+
+skinparam state {
+  BackgroundColor #eeeeee
+  BorderColor #333333
+  FontStyle bold
+}
+
+skinparam arrow {
+  FontStyle italic
+  ArrowColor #333333
+}

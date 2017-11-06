@@ -6,6 +6,7 @@
 {-# LANGUAGE PolyKinds                  #-}
 {-# LANGUAGE RebindableSyntax           #-}
 {-# LANGUAGE StandaloneDeriving         #-}
+{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 module Motor.FSMSpec.Game where
@@ -18,6 +19,7 @@ import           Data.OpenRecords
 
 import           Motor.FSM
 import           Motor.FSM.Logging
+import           Motor.FSM.TH
 
 -- * Game Protocol/Machine
 
@@ -26,10 +28,24 @@ data Jumping
 
 class MonadFSM m => Game (m :: Row * -> Row * -> * -> *) where
   type State m :: * -> *
-  spawn :: KnownSymbol n => Name n -> m r (n ::= State m Standing :| r) ()
-  jump :: KnownSymbol n => Name n -> m r (n ::= State m Jumping :| (r :- n)) ()
-  land :: KnownSymbol n => Name n -> m r (n ::= State m Standing :| (r :- n)) ()
-  perish :: KnownSymbol n => Name n -> m r (r :- n) ()
+  spawn
+    :: KnownSymbol n
+    => Name n
+    -> Actions m '[n !+ State m Standing] r ()
+  jump
+    :: KnownSymbol n
+    => Name n
+    -> Actions m '[n :-> State m Standing !--> State m Jumping] r ()
+  land
+    :: KnownSymbol n
+    => Name n
+    -> Actions m '[n :-> State m Jumping !--> State m Standing] r ()
+  perish
+    :: KnownSymbol n
+    => Name n
+    -> Actions m '[n !- State m Standing] r ()
+
+showClass ''Game
 
 -- * Game Implemention
 
