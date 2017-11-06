@@ -6,34 +6,6 @@ Generate state diagrams from Motor FSM typeclasses.
 
 ## Example
 
-Given a typeclass following the Motor FSM conventions:
-
-``` haskell
-data Standing
-data Jumping
-
-class MonadFSM m => Game (m :: Row * -> Row * -> * -> *) where
-  type State m :: * -> *
-  spawn
-    :: KnownSymbol n
-    => Name n
-    -> Actions m '[n !+ State m Standing] r ()
-  jump
-    :: KnownSymbol n
-    => Name n
-    -> Actions m '[n :-> State m Standing !--> State m Jumping] r ()
-  land
-    :: KnownSymbol n
-    => Name n
-    -> Actions m '[n :-> State m Jumping !--> State m Standing] r ()
-  perish
-    :: KnownSymbol n
-    => Name n
-    -> Actions m '[n !- State m Standing] r ()
-```
-
-You can have the following diagram rendered:
-
 ![Game state diagram](diagrams/game.png)
 
 ## Usage
