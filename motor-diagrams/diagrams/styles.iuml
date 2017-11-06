@@ -1,11 +1,11 @@
 hide circle
 
-skinparam dpi 300
+skinparam dpi 150
 
 skinparam shadowing false
 
 skinparam defaultFontSize 14
-skinparam defaultFontName Noto Sans
+skinparam defaultFontName Ubuntu
 
 skinparam class {
   BackgroundColor #eeeeee

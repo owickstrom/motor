@@ -18,7 +18,7 @@ import           Test.Hspec
 
 import           Motor.FSM
 import           Motor.FSM.Reflection
-import           Motor.FSM.Reflection.Event
+import           Motor.FSM.Reflection.Event (Event)
 
 -- * Game Protocol/Machine
 
@@ -28,20 +28,16 @@ data Jumping
 class MonadFSM m => Game (m :: Row * -> Row * -> * -> *) where
   type State m :: * -> *
   spawn
-    :: KnownSymbol n
-    => Name n
+    :: Name n
     -> Actions m '[n !+ State m Standing] r ()
   jump
-    :: KnownSymbol n
-    => Name n
+    :: Name n
     -> Actions m '[n :-> State m Standing !--> State m Jumping] r ()
   land
-    :: KnownSymbol n
-    => Name n
+    :: Name n
     -> Actions m '[n :-> State m Jumping !--> State m Standing] r ()
   perish
-    :: KnownSymbol n
-    => Name n
+    :: Name n
     -> Actions m '[n !- State m Standing] r ()
 
 reflectEvents ''Game "gameEvents"

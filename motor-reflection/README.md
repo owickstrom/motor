@@ -7,6 +7,13 @@ Haskell.
 
 ## Usage
 
+First, you need to import the reflection module and the `Event` type:
+
+``` haskell
+import           Motor.FSM.Reflection
+import           Motor.FSM.Reflection.Event (Event)
+```
+
 Given that your FSM typeclass follows Motor's conventions, you can
 reflect to get a list of events:
 
