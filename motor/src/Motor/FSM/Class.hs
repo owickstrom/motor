@@ -19,7 +19,7 @@ module Motor.FSM.Class
   ) where
 
 import           Control.Monad.Indexed
-import           Data.OpenRecords
+import           Data.Row.Records
 import           GHC.TypeLits          (Symbol)
 
 -- * FSM monad
@@ -30,9 +30,9 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
   -- | Creates a new resource and returns its 'Name'.
   new :: Name n -> a -> m r (Extend n a r) ()
   -- | Deletes an existing resource named by its 'Name'.
-  delete :: Name n -> m r (r :- n) ()
+  delete :: Name n -> m r (r .- n) ()
   -- | Replaces the state of an existing resource named by its 'Name'.
-  enter :: Name n -> b -> m r (n ::= b :| (r :- n)) ()
+  enter :: Name n -> b -> m r (Modify n b r) ()
   -- | Run another 'MonadFSM' computation, with empty resource rows,
   -- in this computation.
   call :: m Empty Empty a -> m r r a

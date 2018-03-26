@@ -41,7 +41,7 @@ test-suite spec
   main-is:           Spec.hs
   build-depends:     base
                    , indexed
-                   , CTRex
+                   , row-types
                    , hspec
                    , hspec-discover
                    , motor

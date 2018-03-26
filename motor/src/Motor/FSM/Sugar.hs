@@ -21,7 +21,7 @@ module Motor.FSM.Sugar
   , type (!-)
   ) where
 
-import           Data.OpenRecords
+import           Data.Row.Records
 import           GHC.TypeLits     (Symbol)
 
 -- | Action that adds a new resource in state 's'.
@@ -43,8 +43,8 @@ infixr 5 :->
 type family FromActions (as :: [*]) (rs :: Row *) :: (Row *) where
   FromActions '[] rs = rs
   FromActions ((n :-> Add a) ': ts) r = Extend n a (FromActions ts r)
-  FromActions ((n :-> Delete a) ': ts) r = FromActions ts r :- n
-  FromActions ((n :-> To a b) ': ts) r = Extend n b (FromActions ts r :- n)
+  FromActions ((n :-> Delete a) ': ts) r = FromActions ts r .- n
+  FromActions ((n :-> To a b) ': ts) r = Modify n b (FromActions ts r)
 
 -- | Alias for 'MonadFSM' that includes no actions.
 type NoActions m (r :: Row *) a = m r r a

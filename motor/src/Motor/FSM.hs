@@ -56,7 +56,8 @@ import           Control.Monad.IO.Class
 import           Control.Monad.Indexed
 import           Control.Monad.Indexed.State
 import           Control.Monad.Indexed.Trans
-import           Data.OpenRecords
+import           Data.Functor.Identity       (runIdentity)
+import           Data.Row.Records
 
 import           Motor.FSM.Class
 import           Motor.FSM.Sugar
@@ -108,13 +109,13 @@ runFSM :: Monad m => FSM m Empty Empty a -> m a
 runFSM (FSM f) = fst <$> runIxStateT f empty
 
 instance Monad m => MonadFSM (FSM m) where
-  new (Name :: Name n) x = FSM (imodify ((lbl := x) .|))
+  new (Name :: Name n) x = FSM (imodify (extend lbl x))
     where
       lbl = Label :: Label n
   delete (Name :: Name n) = FSM (imodify (.- lbl))
     where
       lbl = Label :: Label n
-  enter (Name :: Name n) x = FSM (imodify $ \s -> lbl := x .| (s .- lbl))
+  enter (Name :: Name n) x = FSM (imodify $ \s -> runIdentity (focus lbl (const (pure x)) s))
     where
       lbl = Label :: Label n
   call (FSM ma) = FSM (ilift (fst <$> runIxStateT ma empty))

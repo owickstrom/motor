@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE PolyKinds                  #-}
@@ -10,12 +11,12 @@
 {-# LANGUAGE TypeOperators              #-}
 module Examples.Door where
 
-import           Prelude                hiding (log)
+import           Prelude
 
 import           Control.Concurrent     (threadDelay)
 import           Control.Monad.Indexed
 import           Control.Monad.IO.Class
-import           Data.OpenRecords
+import           Data.Row.Records
 
 import           Motor.FSM
 
@@ -71,35 +72,31 @@ instance (Monad m) => Door (ConsoleDoor m) where
 -- This uses the protocol to define a program using the Door protocol.
 
 sleep :: (MonadIO (m i i)) => Int -> m (i :: Row *) (i :: Row *) ()
-sleep seconds =
-  liftIO (threadDelay (seconds * 1000000))
+sleep seconds = liftIO (threadDelay (seconds * 1000000))
 
-confirm :: (MonadIO (m i i)) =>  String -> m (i :: Row *) (i :: Row *) Bool
-confirm s =
-  liftIO (putStrLn s >> ("y" ==) <$> getLine)
+confirm :: (MonadIO (m i i)) => String -> m (i :: Row *) (i :: Row *) Bool
+confirm s = liftIO (putStrLn s >> ("y" ==) <$> getLine)
 
 main :: IO ()
 main = run prg
-  where
+ where
     -- A name for our door.
-    d :: Name "door"
-    d = Name
+  d :: Name "door"
+  d   = Name
 
-    -- The program initializes a door, and starts the looping between
-    -- open/closed.
-    prg = initial d >>>= const (inClosed d)
+  -- The program initializes a door, and starts the looping between
+  -- open/closed.
+  prg = initial d >>>= const (inClosed d)
 
-    -- Type inference is veeeery helpful with these recursive
-    -- definitions.
-    inClosed door =
-      confirm "Open door?" >>>= \case
-        True -> open door >>>= const (inOpen door)
-        False -> end door
-    -- Same here.
-    inOpen door =
-      confirm "The door must be closed. OK?" >>>= \case
-        True -> close door >>>= const (inClosed door)
-        False -> inOpen door
+  -- Type inference is veeeery helpful with these recursive
+  -- definitions.
+  inClosed door = confirm "Open door?" >>>= \case
+    True  -> open door >>>= const (inOpen door)
+    False -> end door
+  -- Same here.
+  inOpen door = confirm "The door must be closed. OK?" >>>= \case
+    True  -> close door >>>= const (inClosed door)
+    False -> inOpen door
 
 {- $example-run
 

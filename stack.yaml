@@ -1,4 +1,4 @@
-resolver: lts-9.10
+resolver: lts-11.0
 
 packages:
 - 'motor'
@@ -8,5 +8,7 @@ packages:
 extra-deps:
 - indexed-0.1.3
 - indexed-extras-0.2
-- bifunctors-5.3
-- CTRex-0.6
+- bifunctors-5.5.2
+- row-types-0.2.2.0
+
+allow-newer: true
