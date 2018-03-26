@@ -15,11 +15,10 @@ import           Prelude                hiding (log, (>>))
 
 import           Control.Monad.Indexed
 import           Control.Monad.IO.Class
-import           Data.OpenRecords
+import           Data.Row.Records
 
 import           Motor.FSM
 import           Motor.FSM.Logging
-import           Motor.FSM.TH
 
 -- * Game Protocol/Machine
 
@@ -44,8 +43,6 @@ class MonadFSM m => Game (m :: Row * -> Row * -> * -> *) where
     :: KnownSymbol n
     => Name n
     -> Actions m '[n !- State m Standing] r ()
-
-showClass ''Game
 
 -- * Game Implemention
 

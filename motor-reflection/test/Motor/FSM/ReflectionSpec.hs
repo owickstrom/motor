@@ -11,9 +11,9 @@
 {-# LANGUAGE TypeOperators              #-}
 module Motor.FSM.ReflectionSpec where
 
-import           Prelude                    hiding (log, (>>))
+import           Prelude
 
-import           Data.OpenRecords
+import           Data.Row.Records
 import           Test.Hspec
 
 import           Motor.FSM

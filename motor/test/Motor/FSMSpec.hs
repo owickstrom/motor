@@ -7,7 +7,7 @@ module Motor.FSMSpec where
 import           Prelude               hiding ((>>), (>>=))
 
 import           Control.Monad.Indexed
-import           Data.OpenRecords
+import           Data.Row.Records
 
 import           Motor.FSM
 
@@ -20,14 +20,14 @@ n1 = Name
 n2 :: Name "n2"
 n2 = Name
 
-s1s2 :: MonadFSM m => Name n -> m r (n ::= S2 :| (r :- n)) ()
+s1s2 :: MonadFSM m => Name n -> m r (Modify n S2 r) ()
 s1s2 s = enter s S2
 
-s2s1 :: MonadFSM m => Name n -> m r (n ::= S1 :| (r :- n)) ()
+s2s1 :: MonadFSM m => Name n -> m r (Modify n S1 r) ()
 s2s1 s = enter s S1
 
 
-dropS1 :: MonadFSM m => Name n -> m r (r :- n) ()
+dropS1 :: MonadFSM m => Name n -> m r (r .- n) ()
 dropS1 = delete
 
 test :: MonadFSM m => m Empty Empty ()
