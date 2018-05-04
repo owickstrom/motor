@@ -42,6 +42,7 @@ module Motor.FSM (
   , (:->)
   , To, Add, Delete
   , FromActions, NoActions, Actions , OnlyActions
+  , Get
 
   -- ** Aliases
   , type (!-->)
@@ -110,6 +111,9 @@ runFSM (FSM f) = fst <$> runIxStateT f empty
 
 instance Monad m => MonadFSM (FSM m) where
   new (Name :: Name n) x = FSM (imodify (extend lbl x))
+    where
+      lbl = Label :: Label n
+  get (Name :: Name n) = FSM (igets (.! lbl))
     where
       lbl = Label :: Label n
   delete (Name :: Name n) = FSM (imodify (.- lbl))

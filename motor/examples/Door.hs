@@ -33,6 +33,7 @@ class MonadFSM m => Door m where
 
   -- Events:
   initial :: Name n -> Actions m '[ n !+ State m Closed ] r ()
+  currentDoor :: Name n -> Get m r n
   open :: Name n -> Actions m '[ n :-> State m Closed !--> State m Open ] r ()
   close :: Name n -> Actions m '[ n :-> State m Open !--> State m Closed ] r ()
   end :: Name n -> Actions m '[ n !- State m Closed ] r ()
@@ -63,6 +64,8 @@ data DoorState s where
 instance (Monad m) => Door (ConsoleDoor m) where
   type State (ConsoleDoor m) = DoorState
   initial n = new n Closed
+  -- Also trying the get operator here.
+  currentDoor = get
   open n = enter n Open
   close n = enter n Closed
   end = delete
@@ -76,6 +79,11 @@ sleep seconds = liftIO (threadDelay (seconds * 1000000))
 
 confirm :: (MonadIO (m i i)) => String -> m (i :: Row *) (i :: Row *) Bool
 confirm s = liftIO (putStrLn s >> ("y" ==) <$> getLine)
+
+traceDoor :: (MonadIO m) => Name n -> ConsoleDoor m (n .== DoorState s) (n .== DoorState s) ()
+traceDoor n = currentDoor n >>>= \case
+  Open -> liftIO (putStrLn "The door is open.")
+  Closed -> liftIO (putStrLn "The door is closed.")
 
 main :: IO ()
 main = run prg
@@ -92,11 +100,11 @@ main = run prg
   -- definitions.
   inClosed door = confirm "Open door?" >>>= \case
     True  -> open door >>>= const (inOpen door)
-    False -> end door
+    False -> traceDoor door >>>= const (end door)
   -- Same here.
   inOpen door = confirm "The door must be closed. OK?" >>>= \case
     True  -> close door >>>= const (inClosed door)
-    False -> inOpen door
+    False -> traceDoor door >>>= const (inOpen door)
 
 {- $example-run
 

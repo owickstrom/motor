@@ -27,8 +27,10 @@ import           GHC.TypeLits          (Symbol)
 -- | An indexed monad for finite-state machines, managing the state
 -- of named resources.
 class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
-  -- | Creates a new resource and returns its 'Name'.
+  -- | Creates a new resource by name.
   new :: Name n -> a -> m r (Extend n a r) ()
+  -- | Returns an existing resource.
+  get :: HasType n a r => Name n -> m r r a
   -- | Deletes an existing resource named by its 'Name'.
   delete :: Name n -> m r (r .- n) ()
   -- | Replaces the state of an existing resource named by its 'Name'.

@@ -16,6 +16,7 @@ module Motor.FSM.Sugar
   , NoActions
   , Actions
   , OnlyActions
+  , Get
   , type (!-->)
   , type (!+)
   , type (!-)
@@ -55,6 +56,9 @@ type Actions m as (r :: Row *) a = m r (FromActions as r) a
 -- | Alias for 'MonadFSM' that uses 'FromActions' to construct rows,
 -- starting from an 'Empty' row, i.e. allowing no /other/ resources.
 type OnlyActions m as a = Actions m as Empty a
+
+-- | Gets an existing resource in state 's'.
+type Get m (r :: Row *) n = m r r (r .! n)
 
 -- | Infix version of 'To'.
 type (!-->) i o = To i o
