@@ -1,10 +1,13 @@
+{-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
+{-# LANGUAGE OverloadedLabels           #-}
 {-# LANGUAGE PolyKinds                  #-}
+{-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE RebindableSyntax           #-}
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# LANGUAGE TypeFamilies               #-}
@@ -17,6 +20,7 @@ import           Control.Concurrent     (threadDelay)
 import           Control.Monad.Indexed
 import           Control.Monad.IO.Class
 import           Data.Row.Records
+import           GHC.OverloadedLabels
 
 import           Motor.FSM
 
@@ -85,26 +89,32 @@ traceDoor n = currentDoor n >>>= \case
   Open -> liftIO (putStrLn "The door is open.")
   Closed -> liftIO (putStrLn "The door is closed.")
 
+type OpenAndClose m n o c =
+    ( Door m
+    , Modify n (State m Open) c ~ o
+    , Modify n (State m Closed) o ~ c
+    )
+
+type OpenAndCloseIO m n o c =
+    ( OpenAndClose m n o c
+    , MonadIO (m o o)
+    , MonadIO (m c c)
+    )
+
+inClosed :: (OpenAndCloseIO m n o c) => Name n -> m c (c .- n) ()
+inClosed door = confirm "Open door?" >>>= \case
+  True  -> open door >>>= const (inOpen door)
+  False -> end door
+
+inOpen :: (OpenAndCloseIO m n o c) => Name n -> m o (c .- n) ()
+inOpen door = confirm "The door must be closed. OK?" >>>= \case
+  True  -> close door >>>= const (inClosed door)
+  False -> inOpen door
+
+-- The program initializes a door, and starts the looping between
+-- open/closed.
 main :: IO ()
-main = run prg
- where
-    -- A name for our door.
-  d :: Name "door"
-  d   = Name
-
-  -- The program initializes a door, and starts the looping between
-  -- open/closed.
-  prg = initial d >>>= const (inClosed d)
-
-  -- Type inference is veeeery helpful with these recursive
-  -- definitions.
-  inClosed door = confirm "Open door?" >>>= \case
-    True  -> open door >>>= const (inOpen door)
-    False -> traceDoor door >>>= const (end door)
-  -- Same here.
-  inOpen door = confirm "The door must be closed. OK?" >>>= \case
-    True  -> close door >>>= const (inClosed door)
-    False -> traceDoor door >>>= const (inOpen door)
+main = run $ initial #door >>>= const (inClosed #door)
 
 {- $example-run
 
@@ -127,5 +137,4 @@ The door must be closed. OK?
 y
 Open door?
 n
-
 -}

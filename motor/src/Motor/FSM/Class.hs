@@ -3,6 +3,7 @@
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE FlexibleContexts       #-}
+{-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE GADTs                  #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
 {-# LANGUAGE PolyKinds              #-}
@@ -21,6 +22,7 @@ module Motor.FSM.Class
 import           Control.Monad.Indexed
 import           Data.Row.Records
 import           GHC.TypeLits          (Symbol)
+import           GHC.OverloadedLabels
 
 -- * FSM monad
 
@@ -34,7 +36,12 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
   -- | Deletes an existing resource named by its 'Name'.
   delete :: Name n -> m r (r .- n) ()
   -- | Replaces the state of an existing resource named by its 'Name'.
-  enter :: Name n -> b -> m r (Modify n b r) ()
+  enter :: ( HasType n a r
+           , Modify n b r ~ r'
+           )
+        => Name n
+        -> b
+        -> m r r' ()
   -- | Run another 'MonadFSM' computation, with empty resource rows,
   -- in this computation.
   call :: m Empty Empty a -> m r r a
@@ -42,3 +49,6 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
 -- | A name of a resource, represented using a 'Symbol'.
 data Name (n :: Symbol) where
   Name :: KnownSymbol n => Name n
+
+instance (KnownSymbol n, n ~ n') => IsLabel n (Name n') where
+  fromLabel = Name :: Name n'
