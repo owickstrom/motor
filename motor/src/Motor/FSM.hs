@@ -39,8 +39,8 @@ module Motor.FSM (
   , Name (..)
 
   -- ** State Actions
-  , (:->)
-  , To, Add, Delete, Remain
+  , Action (..)
+  , ActionMapping (..)
   , FromActions, NoActions, Actions , OnlyActions
   , Get
 

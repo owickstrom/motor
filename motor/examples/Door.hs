@@ -40,8 +40,8 @@ class MonadFSM m => Door m where
 
   -- Events:
   initial :: Name n -> Actions m '[ n !+ State m Closed ] r ()
-  open :: Name n -> Actions m '[ n :-> State m Closed !--> State m Open ] r ()
-  close :: Name n -> Actions m '[ n :-> State m Open !--> State m Closed ] r ()
+  open :: Name n -> Actions m '[ n := State m Closed !--> State m Open ] r ()
+  close :: Name n -> Actions m '[ n := State m Open !--> State m Closed ] r ()
   end :: Name n -> Actions m '[ n !- State m Closed ] r ()
 
 -- * Implemention (Concrete types)
