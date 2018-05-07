@@ -1,9 +1,11 @@
+{-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE PolyKinds                  #-}
+{-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE RebindableSyntax           #-}
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -34,11 +36,11 @@ class MonadFSM m => Game (m :: Row * -> Row * -> * -> *) where
   jump
     :: KnownSymbol n
     => Name n
-    -> Actions m '[n :-> State m Standing !--> State m Jumping] r ()
+    -> Actions m '[n := State m Standing !--> State m Jumping] r ()
   land
     :: KnownSymbol n
     => Name n
-    -> Actions m '[n :-> State m Jumping !--> State m Standing] r ()
+    -> Actions m '[n := State m Jumping !--> State m Standing] r ()
   perish
     :: KnownSymbol n
     => Name n
@@ -86,15 +88,17 @@ hero2 = Name
 
 testTwoAdds ::
      Game m
-  => Actions m '[ "hero2" !+ State m Standing
-                , "hero1" !+ State m Standing
-                ] r ()
+  => Actions m '[ "hero1" !+ State m Standing
+               , "hero2" !+ State m Standing
+               ] r ()
 testTwoAdds =
   spawn hero1 >>>= \_ -> spawn hero2
 
 testTwoDeletes ::
      Game m
-  => Actions m '[ "hero2" !- State m Standing, "hero1" !- State m Standing] r ()
+  => Actions m '[ "hero1" !- State m Standing
+               , "hero2" !- State m Standing
+               ] r ()
 testTwoDeletes =
   perish hero1 >>>= \_ -> perish hero2
 

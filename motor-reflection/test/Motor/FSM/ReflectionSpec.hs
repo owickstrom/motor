@@ -1,9 +1,11 @@
+{-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE PolyKinds                  #-}
+{-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE RebindableSyntax           #-}
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -16,7 +18,7 @@ import           Prelude
 import           Data.Row.Records
 import           Test.Hspec
 
-import           Motor.FSM
+import           Motor.FSM                  hiding (Add, Delete)
 import           Motor.FSM.Reflection
 import           Motor.FSM.Reflection.Event (Event)
 
@@ -32,10 +34,10 @@ class MonadFSM m => Game (m :: Row * -> Row * -> * -> *) where
     -> Actions m '[n !+ State m Standing] r ()
   jump
     :: Name n
-    -> Actions m '[n :-> State m Standing !--> State m Jumping] r ()
+    -> Actions m '[n := State m Standing !--> State m Jumping] r ()
   land
     :: Name n
-    -> Actions m '[n :-> State m Jumping !--> State m Standing] r ()
+    -> Actions m '[n := State m Jumping !--> State m Standing] r ()
   perish
     :: Name n
     -> Actions m '[n !- State m Standing] r ()
@@ -44,7 +46,7 @@ reflectEvents ''Game "gameEvents"
 
 spec :: Spec
 spec =
-  it "reflects events when using a State type family" $
+  it "reflects events when using Actions" $
     gameEvents `shouldBe` [ Event "spawn" (Add "Standing")
                           , Event "jump" (Transition "Standing" "Jumping")
                           , Event "land" (Transition "Jumping" "Standing")
