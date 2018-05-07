@@ -21,8 +21,8 @@ module Motor.FSM.Class
 
 import           Control.Monad.Indexed
 import           Data.Row.Records
-import           GHC.TypeLits          (Symbol)
 import           GHC.OverloadedLabels
+import           GHC.TypeLits          (Symbol)
 
 -- * FSM monad
 
@@ -36,13 +36,15 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
   -- | Deletes an existing resource named by its 'Name'.
   delete :: Name n -> m r (r .- n) ()
   -- | Replaces the state of an existing resource named by its 'Name'.
-  enter :: ( HasType n a r
-           , Modify n b r ~ r'
-           )
-        => Name n
-        -> b
-        -> m r r' ()
-  -- | Run another 'MonadFSM' computation, with empty resource rows,
+  enter ::
+       (HasType n a r, Modify n b r ~ r')
+    => Name n
+    -> b
+    -> m r r' ()
+  -- | Updates the state, using a pure function, of an existing
+  -- resource named by its 'Name'.
+  update :: (HasType n a r, Modify n a r ~ r) => Name n -> (a -> a) -> m r r ()
+  -- | Embed another 'MonadFSM' computation, with empty resource rows,
   -- in this computation.
   call :: m Empty Empty a -> m r r a
 

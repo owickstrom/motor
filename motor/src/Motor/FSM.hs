@@ -40,7 +40,7 @@ module Motor.FSM (
 
   -- ** State Actions
   , (:->)
-  , To, Add, Delete
+  , To, Add, Delete, Remain
   , FromActions, NoActions, Actions , OnlyActions
   , Get
 
@@ -51,6 +51,12 @@ module Motor.FSM (
 
   -- ** FSM
   , FSM, runFSM
+
+  -- * Indexed Monad Utilities
+  , (>>>)
+
+  -- * Re-exports
+  , module Control.Monad.Indexed
   ) where
 
 import           Control.Monad.IO.Class
@@ -117,6 +123,9 @@ instance Monad m => MonadFSM (FSM m) where
     where
       lbl = Label :: Label n
   delete (Name :: Name n) = FSM (imodify (.- lbl))
+    where
+      lbl = Label :: Label n
+  update (Name :: Name n) f = FSM (imodify $ \s -> runIdentity (focus lbl (pure . f) s))
     where
       lbl = Label :: Label n
   enter (Name :: Name n) x = FSM (imodify $ \s -> runIdentity (focus lbl (const (pure x)) s))
@@ -200,6 +209,9 @@ See [24 Days of GHC Extensions: Rebindable
  for some more information on how to use @RebindableSyntax@.
 
 -}
+
+(>>>) :: IxMonad m => m i j a -> m j k b -> m i k b
+(>>>) a = (>>>=) a . const
 
 {- $state-actions
 To make it easier to read and write FSM computation types, there is

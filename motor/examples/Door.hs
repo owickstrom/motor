@@ -2,9 +2,11 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FunctionalDependencies     #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedLabels           #-}
 {-# LANGUAGE PolyKinds                  #-}
 {-# LANGUAGE RankNTypes                 #-}
@@ -12,7 +14,8 @@
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
-module Examples.Door where
+
+module Main where
 
 import           Prelude
 
@@ -37,7 +40,6 @@ class MonadFSM m => Door m where
 
   -- Events:
   initial :: Name n -> Actions m '[ n !+ State m Closed ] r ()
-  currentDoor :: Name n -> Get m r n
   open :: Name n -> Actions m '[ n :-> State m Closed !--> State m Open ] r ()
   close :: Name n -> Actions m '[ n :-> State m Open !--> State m Closed ] r ()
   end :: Name n -> Actions m '[ n !- State m Closed ] r ()
@@ -64,14 +66,24 @@ data DoorState s where
   Open :: DoorState Open
   Closed :: DoorState Closed
 
+instance Show (DoorState s) where
+  show Open   = "Open"
+  show Closed = "Closed"
+
+logLn :: (MonadIO m) => String -> m ()
+logLn = liftIO . putStrLn
+
+logDoor :: (MonadIO m, HasType n (DoorState s) i) => Name n -> ConsoleDoor m i i ()
+logDoor n =
+    get n
+    >>>= \s -> logLn ("Door is now " ++ show s)
+
 -- Extremely boring implementation:
-instance (Monad m) => Door (ConsoleDoor m) where
+instance (MonadIO m) => Door (ConsoleDoor m) where
   type State (ConsoleDoor m) = DoorState
   initial n = new n Closed
-  -- Also trying the get operator here.
-  currentDoor = get
-  open n = enter n Open
-  close n = enter n Closed
+  open n = enter n Open >>> logDoor n
+  close n = enter n Closed >>> logDoor n
   end = delete
 
 -- * Runner Program
@@ -84,15 +96,15 @@ sleep seconds = liftIO (threadDelay (seconds * 1000000))
 confirm :: (MonadIO (m i i)) => String -> m (i :: Row *) (i :: Row *) Bool
 confirm s = liftIO (putStrLn s >> ("y" ==) <$> getLine)
 
-traceDoor :: (MonadIO m) => Name n -> ConsoleDoor m (n .== DoorState s) (n .== DoorState s) ()
-traceDoor n = currentDoor n >>>= \case
-  Open -> liftIO (putStrLn "The door is open.")
-  Closed -> liftIO (putStrLn "The door is closed.")
-
 type OpenAndClose m n o c =
     ( Door m
+    -- TODO: Can these constraints be added to the Sugar module
+    -- automatically?
     , Modify n (State m Open) c ~ o
     , Modify n (State m Closed) o ~ c
+    , (o .! n) ~ State m Open
+    , (c .! n) ~ State m Closed
+    , (o .- n) ~ (c .- n)
     )
 
 type OpenAndCloseIO m n o c =
@@ -101,12 +113,12 @@ type OpenAndCloseIO m n o c =
     , MonadIO (m c c)
     )
 
-inClosed :: (OpenAndCloseIO m n o c) => Name n -> m c (c .- n) ()
+inClosed :: OpenAndCloseIO m n o c => Name n -> m c (c .- n) ()
 inClosed door = confirm "Open door?" >>>= \case
   True  -> open door >>>= const (inOpen door)
   False -> end door
 
-inOpen :: (OpenAndCloseIO m n o c) => Name n -> m o (c .- n) ()
+inOpen :: OpenAndCloseIO m n o c => Name n -> m o (o .- n) ()
 inOpen door = confirm "The door must be closed. OK?" >>>= \case
   True  -> close door >>>= const (inClosed door)
   False -> inOpen door
@@ -123,10 +135,13 @@ Running this program can look like this:
 >>> main
 Open door?
 y
+Door is now Open
 The door must be closed. OK?
 y
+Door is now Closed
 Open door?
 y
+Door is now Open
 The door must be closed. OK?
 n
 The door must be closed. OK?
@@ -135,6 +150,7 @@ The door must be closed. OK?
 n
 The door must be closed. OK?
 y
+Door is now Closed
 Open door?
 n
 -}
