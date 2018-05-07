@@ -1,7 +1,9 @@
 {-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE TypeInType            #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE ExplicitNamespaces    #-}
 {-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE LiberalTypeSynonyms   #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -29,18 +31,24 @@ import           Data.Kind
 import           Data.Row.Records
 import           GHC.TypeLits     (Symbol)
 
+data Result = Error | Ok
+
+data Resource (result :: Result) where
+  ResourceOk :: r -> Resource 'Ok
+  ResourceError :: e -> Resource 'Error
+
 -- | An 'Action' describes a resource action.
 data Action
-  = Add Type
-  -- ^ Adds a new resource of the given 'Type'.
-  | Remain Type
-  -- ^ The existing resource of the given 'Type' remains the same.
-  | To Type
-       Type
-  -- ^ Transitions an existing resource from the first 'Type' to a
-  -- resource of the second 'Type'.
-  | Delete Type
-  -- ^ Deletes an existing resource of the given 'Type'.
+  = Add (forall r. Resource r)
+  -- ^ Adds a new resource of the given 'Resource'.
+  | Remain (forall r. Resource r)
+  -- ^ The existing resource of the given 'Resource' remains the same.
+  | To (forall r. Resource r)
+       (forall r. Resource r)
+  -- ^ Transitions an existing resource from the first 'Resource r' to a
+  -- resource of the second 'Resource'.
+  | Delete (forall r. Resource r)
+  -- ^ Deletes an existing resource of the given 'Resource'.
 
 -- | Mapping from 'Symbol' to some action 'a'.
 data ActionMapping = (:=) Symbol Action
@@ -48,7 +56,11 @@ data ActionMapping = (:=) Symbol Action
 infixr 5 :=
 
 -- | Translates a list of 'Action's to a 'Row'.
-type family FromActions (as :: [ActionMapping]) (rs :: Row *) (c :: Constraint) :: (Row *, Constraint) where
+type family FromActions
+  (as :: [ActionMapping])
+  (rs :: Row (Resource (r :: Result)))
+  (c :: Constraint)
+  :: (Row (Resource (r :: Result)), Constraint) where
   FromActions '[] rs c = '( rs, c)
   FromActions ((n ':= 'Add a) ': ts) r c =
     FromActions ts (Extend n a r) ( c
