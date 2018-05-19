@@ -49,6 +49,7 @@ test-suite spec
                    , motor
                    , motor-reflection
                    , motor-diagrams
+  build-tools:       hspec-discover
   ghc-options:       -Wall
                      -fno-warn-orphans
                      -fno-warn-missing-signatures

@@ -39,6 +39,7 @@ test-suite spec
   other-modules:     Motor.FSM.ReflectionSpec
   hs-source-dirs:    test
   main-is:           Spec.hs
+
   build-depends:     base
                    , indexed
                    , row-types
@@ -46,6 +47,7 @@ test-suite spec
                    , hspec-discover
                    , motor
                    , motor-reflection
+  build-tools:       hspec-discover
   ghc-options:       -Wall
                      -fno-warn-orphans
                      -fno-warn-missing-signatures

@@ -70,10 +70,12 @@ actionsToTransitions tfName =
 actionListToTransitions :: Name -> Type -> Q [Transition]
 actionListToTransitions tfName =
   \case
-    SigT (AppT (AppT PromotedConsT action) actions) (AppT ListT _am) ->
+    AppT (AppT PromotedConsT action) actions ->
       mappend <$> actionToTransitions tfName action <*>
       actionListToTransitions tfName actions
-    SigT PromotedNilT (AppT ListT _) -> return []
+    PromotedNilT  -> return []
+    SigT app (AppT ListT _) ->
+      actionListToTransitions tfName app
     t -> fail ("Unsupported action type: " ++ show t)
 
 actionToTransitions :: Name -> Type -> Q [Transition]
