@@ -104,8 +104,12 @@ testTwoDeletes =
 
 testTwoAddDeletes ::
      Game m
-  => NoActions m r ()
-testTwoAddDeletes = call $ do
+  => Actions m '[ "hero1" !+ State m Standing
+                , "hero2" !+ State m Standing
+                , "hero1" !- State m Standing
+                , "hero2" !- State m Standing
+                ] r ()
+testTwoAddDeletes = do
   spawn hero1
   spawn hero2
   perish hero1

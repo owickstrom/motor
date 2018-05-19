@@ -55,7 +55,6 @@ module Motor.FSM (
   -- * Indexed Monad Utilities
   , (>>>)
 
-  -- * Re-exports
   , module Control.Monad.Indexed
   ) where
 
@@ -159,7 +158,7 @@ An FSM computation @newConn@ that adds a resource named @"connection"@
 with state @Idle@ could have the following type:
 
 >>> :t newConn
-newConn :: MonadFSM m => m r ("connection" ::= Idle :| r) ()
+newConn :: MonadFSM m => m r (Extend "connection" Idle r) ()
 
 A computation @spawnTwoPlayers@ that adds two resources could have
 this type:
@@ -167,10 +166,10 @@ this type:
 >>> :t spawnTwoPlayers
 spawnTwoPlayers ::
   :: MonadFSM m =>
-     m r ("hero2" ::= Standing :| "hero1" ::= Standing :| r) ()
+     m r (Extend "hero2" Standing (Extend "hero1" Standing r)) ()
 
-Motor uses the extensible records in "Data.OpenRecords", provided by
-the [CTRex](https://wiki.haskell.org/CTRex) library, for row kinds.
+Motor uses the extensible records in "Data.Row.Records", provided by
+the [row-types](https://wiki.haskell.org/row-types) library, for row kinds.
 Have a look at it's documentation to learn more about the type-level
 operators available for rows.
 
@@ -180,8 +179,7 @@ operators available for rows.
 {- $indexed-monads
 
 As mentioned above, 'MonadFSM' is an indexed monad. It uses the
-definition from "Control.Monad.Indexed", in the
-[indexed](https://hackage.haskell.org/package/indexed-0.1.3)
+definition from "Control.Monad.Indexed", in the [indexed](https://hackage.haskell.org/package/indexed-0.1.3)
 package. This means that you can use 'ibind' and friends to compose
 FSM computations.
 
@@ -219,25 +217,26 @@ some syntax sugar available.
 
 /State actions/ allow you two describe state changes of named
 resources with a /single/ list, as opposed two writing two rows. They
-also take care of matching the CTRex row combinators with the
-expectations of Motor, which can be tricky to do by hand.
+also take care of building the correct row types and constraints for Motor, which
+can be tricky to do by hand.
 
-There are three state actions:
+There are three state 'Action's:
 
 * 'Add' adds a new resource.
+* 'Remain' keeps an existing resource in the same state.
 * 'To' transitions the state of a resource.
 * 'Delete' deletes an existing resource.
 
-A mapping between a resource name is written using the `:->` type operator,
+A mapping between a resource name is written using the `:=` type operator,
 with a `Symbol` on the left, and a state action type on the right. Here are
 some examples:
 
 @
-"container" :-> Add Empty
+"container" := Add Empty
 
-"list" :-> To Empty NonEmpty
+"list" := To Empty NonEmpty
 
-"game" :-> Delete GameEnded
+"game" := Delete GameEnded
 @
 
 So, the list of mappings from resource names to state actions describe
@@ -246,7 +245,7 @@ resources 'r', and a return value 'a', we can declare the type of an
 FSM computation using the 'Actions' type:
 
 @
-MonadFSM m => Actions m '[ n1 :-> a1, n2 :-> a2, ... ] r a
+MonadFSM m => Actions m '[ n1 := a1, n2 := a2, ... ] r a
 @
 
 A computation that adds two resources could have the following type:
@@ -254,7 +253,7 @@ A computation that adds two resources could have the following type:
 @
 addingTwoThings ::
   MonadFSM m =>
-  Actions m '[ "container" :-> Add Empty, "game" :-> Add Started ] r ()
+  Actions m '[ "container" := Add Empty, "game" := Add Started ] r ()
 @
 -}
 
@@ -267,7 +266,7 @@ The '!-->' operator is an infix alias for `To`:
 @
 useStateMachines ::
   MonadFSM m =>
-  Actions m '[ "program" :-> NotCool !--> Cool ] r ()
+  Actions m '[ "program" := NotCool !--> Cool ] r ()
 @
 
 The `!+` and `!-` are infix aliases for mappings from resource names to `Add`
@@ -286,17 +285,17 @@ endGameWhenWon ::
 
 {- $row-polymorphism
 
-Because of how CTRex works, FSM computations that have a free variable as
-their input row of resources, i.e. that are polymorphic in the sense of
-other resource states, must list /all their actions in reverse order/.
+Because of how the row polymorphism implementation works, FSM computations that
+are polymorphic (in the sense of other resource states) must list /all their actions in order/.
+This limitation will hopefully be addressed soon.
 
 @
 doFourThings ::
      Game m
-  => Actions m '[ "hero2" !- Standing
-                , "hero1" !- Standing
+  => Actions m '[ "hero1" !+ Standing
                 , "hero2" !+ Standing
-                , "hero1" !+ Standing
+                , "hero1" !- Standing
+                , "hero2" !- Standing
                 ] r ()
 doFourThings =
   spawn hero1
