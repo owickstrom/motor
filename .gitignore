@@ -2,3 +2,5 @@ dist
 dist-newstyle
 .stack-work
 TAGS
+.ghc.environment*
+.ghci

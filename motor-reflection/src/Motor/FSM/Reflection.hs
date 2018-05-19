@@ -58,35 +58,25 @@ sigToTransition tfName (transitionName, type') =
                 _constraints
                 (AppT _ actions))) ->
         map (Event (nameBase transitionName)) <$> actionsToTransitions tfName actions
-    _ -> do
-        reportWarning ("Unsupported type:" ++ show type')
-        return []
+    _ -> fail ("Unsupported type:" ++ show type')
 
 actionsToTransitions :: Name -> Type -> Q [Transition]
 actionsToTransitions tfName =
     \case
-    SigT (AppT (AppT (AppT (AppT (ConT _actions) (VarT _m)) as) (VarT _r)) _) _ ->
+    AppT (AppT (AppT (AppT (ConT _actions) (VarT _m)) as) (VarT _r)) _ ->
         actionListToTransitions tfName as
-    _ -> return []
+    t -> fail ("Unsupported actions type: " ++ show t)
 
 actionListToTransitions :: Name -> Type -> Q [Transition]
 actionListToTransitions tfName =
-    \case
-    SigT
-        (AppT
-        (AppT
-            PromotedConsT
-            action)
-        actions)
-        (AppT ListT StarT) ->
-        mappend
-        <$> actionToTransitions tfName action
-        <*> actionListToTransitions tfName actions
-    SigT PromotedNilT (AppT ListT StarT) ->
-        return []
-    t -> do
-        reportWarning ("Unsupported action type: " ++ show t)
-        return []
+  \case
+    AppT (AppT PromotedConsT action) actions ->
+      mappend <$> actionToTransitions tfName action <*>
+      actionListToTransitions tfName actions
+    PromotedNilT  -> return []
+    SigT app (AppT ListT _) ->
+      actionListToTransitions tfName app
+    t -> fail ("Unsupported action type: " ++ show t)
 
 actionToTransitions :: Name -> Type -> Q [Transition]
 actionToTransitions tfName =
@@ -105,7 +95,7 @@ actionToTransitions tfName =
           opS -> fail ("Action infix operator not supported: " ++ opS)
 
     AppT
-        (AppT (ConT _assoc) (VarT _n))
+        (AppT (PromotedT _assoc) (VarT _n))
         (AppT
         (AppT (ConT _to) (AppT (AppT (ConT tf1) (VarT _m1)) (ConT from)))
         (AppT

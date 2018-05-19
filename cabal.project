@@ -1,0 +1,4 @@
+packages: motor
+        , motor-reflection
+        , motor-diagrams
+allow-newer: bifunctors

@@ -1,5 +1,5 @@
 name:                motor-diagrams
-version:             0.2.0.0
+version:             0.3.0
 synopsis:
   Generate state diagrams from Motor FSM typeclasses
 description:
@@ -49,6 +49,7 @@ test-suite spec
                    , motor
                    , motor-reflection
                    , motor-diagrams
+  build-tools:       hspec-discover
   ghc-options:       -Wall
                      -fno-warn-orphans
                      -fno-warn-missing-signatures
