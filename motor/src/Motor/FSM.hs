@@ -127,7 +127,7 @@ instance Monad m => MonadFSM (FSM m) where
   update (Name :: Name n) f = FSM (imodify $ \s -> runIdentity (focus lbl (pure . f) s))
     where
       lbl = Label :: Label n
-  enter (Name :: Name n) x = FSM (imodify $ \s -> runIdentity (focus lbl (const (pure x)) s))
+  enter (Name :: Name n) x = FSM (imodify $ \s -> s .// (lbl .== x))
     where
       lbl = Label :: Label n
   call (FSM ma) = FSM (ilift (fst <$> runIxStateT ma empty))

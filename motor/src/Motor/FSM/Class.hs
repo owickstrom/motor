@@ -36,8 +36,9 @@ class IxMonad m => MonadFSM (m :: (Row *) -> (Row *) -> * -> *) where
   -- | Deletes an existing resource named by its 'Name'.
   delete :: Name n -> m r (r .- n) ()
   -- | Replaces the state of an existing resource named by its 'Name'.
-  enter ::
-       (HasType n a r, Modify n b r ~ r')
+  enter
+    :: ( r' ~ (r .// (n .== b))
+       )
     => Name n
     -> b
     -> m r r' ()
