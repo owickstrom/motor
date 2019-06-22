@@ -1,3 +1,6 @@
+* 0.4.0 (pending)
+  - Use row-types 0.3.0 or higher, and the `Overwrite` construct
+    rather than `Modify`
 * 0.3.0
   - Use row-types instead of CTRex.
   - Rename `:->` operator to `:=`.
