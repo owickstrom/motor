@@ -1,5 +1,5 @@
 name:                motor
-version:             0.4.0-alpha
+version:             0.4.0
 synopsis:
   Type-safe effectful state machines in Haskell
 description:
