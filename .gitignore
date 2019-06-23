@@ -1,6 +1,7 @@
 dist
 dist-newstyle
 .stack-work
+stack.yaml.lock
 TAGS
 .ghc.environment*
 .ghci
