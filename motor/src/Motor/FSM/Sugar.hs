@@ -59,9 +59,9 @@ type family FromActions (as :: [ActionMapping]) (rs :: Row *) (c :: Constraint) 
                             , (r .! n) ~ a
                             )
   FromActions ((n ':= 'To a b) ': ts) r c =
-    FromActions ts (r .// (n .== b)) ( c
+    FromActions ts ((n .== b) .// r) ( c
                                      , (r .! n) ~ a
-                                     , ((r .// (n .== b)) .! n) ~ b
+                                     , (((n .== b) .// r) .! n) ~ b
                                      )
   FromActions ((n ':= 'Remain a) ': ts) r c =
     FromActions ts r (c, (r .! n) ~ a)

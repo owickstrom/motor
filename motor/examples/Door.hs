@@ -100,8 +100,8 @@ type OpenAndClose m n o c =
     ( Door m
     -- TODO: Can these constraints be added to the Sugar module
     -- automatically?
-    , Modify n (State m Open) c ~ o
-    , Modify n (State m Closed) o ~ c
+    , ((n .== State m Open) .// c) ~ o
+    , ((n .== State m Closed) .// o) ~ c
     , (o .! n) ~ State m Open
     , (c .! n) ~ State m Closed
     , (o .- n) ~ (c .- n)

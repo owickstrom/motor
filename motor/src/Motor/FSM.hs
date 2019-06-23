@@ -1,10 +1,10 @@
-{-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE PolyKinds                  #-}
-{-# LANGUAGE ScopedTypeVariables        #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE PolyKinds           #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 {- | /Motor/ is an experimental Haskell library for building
    finite-state machines with type-safe transitions and effects. It
    draws inspiration from the Idris
@@ -58,10 +58,10 @@ module Motor.FSM (
   , module Control.Monad.Indexed
   ) where
 
-import           Control.Monad.IO.Class
 import           Control.Monad.Indexed
 import           Control.Monad.Indexed.State
 import           Control.Monad.Indexed.Trans
+import           Control.Monad.IO.Class
 import           Data.Functor.Identity       (runIdentity)
 import           Data.Row.Records
 
@@ -127,7 +127,7 @@ instance Monad m => MonadFSM (FSM m) where
   update (Name :: Name n) f = FSM (imodify $ \s -> runIdentity (focus lbl (pure . f) s))
     where
       lbl = Label :: Label n
-  enter (Name :: Name n) x = FSM (imodify $ \s -> s .// (lbl .== x))
+  enter (Name :: Name n) x = FSM (imodify ((lbl .== x) .//))
     where
       lbl = Label :: Label n
   call (FSM ma) = FSM (ilift (fst <$> runIxStateT ma empty))

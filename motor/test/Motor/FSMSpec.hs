@@ -20,10 +20,10 @@ n1 = Name
 n2 :: Name "n2"
 n2 = Name
 
-s1s2 :: MonadFSM m => Name n -> m r (r .// (n .== S2)) ()
+s1s2 :: MonadFSM m => Name n -> m r ((n .== S2) .// r) ()
 s1s2 s = enter s S2
 
-s2s1 :: MonadFSM m => Name n -> m r (r .// (n .== S1)) ()
+s2s1 :: MonadFSM m => Name n -> m r ((n .== S1) .// r) ()
 s2s1 s = enter s S1
 
 
