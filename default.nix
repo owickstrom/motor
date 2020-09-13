@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, compiler ? "ghc865", doBenchmark ? false }:
+{ pkgs ? import <nixpkgs> {}, compiler ? "ghc8102", doBenchmark ? false }:
 rec {
   motor = (import ./motor { inherit compiler; }).motor;
   motor-reflection = (import ./motor-reflection { inherit compiler motor; }).motor-reflection;
