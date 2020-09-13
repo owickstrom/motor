@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, compiler ? "ghc865", doBenchmark ? true }:
+{ pkgs ? import <nixpkgs> {}, compiler ? "ghc8102", doBenchmark ? true }:
 let
   haskellPackages = pkgs.haskell.packages.${compiler};
   project = import ./. { inherit compiler doBenchmark; };
@@ -10,5 +10,7 @@ in
       project.motor-reflection
       project.motor-diagrams
     ];
-    buildInputs = [];
+    buildInputs = with pkgs; [
+      plantuml
+    ];
   }
