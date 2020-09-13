@@ -38,27 +38,11 @@ asEvents sigs = do
 sigToTransition :: Name -> (Name, Type) -> Q [Event]
 sigToTransition tfName (transitionName, type') =
     case type' of
-    (ForallT
-            [ KindedTV _m1 (AppT
-                            (AppT
-                                ArrowT
-                                (AppT
-                                (ConT _rowKind1) StarT))
-                            (AppT
-                                (AppT ArrowT
-                                (AppT (ConT _rowKind2) StarT))
-                                (AppT (AppT ArrowT StarT) StarT)))
-            ]
-            [ AppT (ConT _className) (VarT _cm)
-            ]
-            (ForallT
-                [ KindedTV _n1 (ConT _symbolKind1)
-                , KindedTV _r1 (AppT (ConT _rowKind3) StarT)
-                ]
-                _constraints
-                (AppT _ actions))) ->
-        map (Event (nameBase transitionName)) <$> actionsToTransitions tfName actions
-    _ -> fail ("Unsupported type:" ++ show type')
+    (ForallT [KindedTV _n1 (ConT _symbolKind1), KindedTV _r1 (AppT (ConT _rowKind1) StarT)]
+     [] -- maybe _constraints?
+     (AppT _ actions))
+      -> map (Event (nameBase transitionName)) <$> actionsToTransitions tfName actions
+    _ -> fail ("Unsupported type: " ++ show type')
 
 actionsToTransitions :: Name -> Type -> Q [Transition]
 actionsToTransitions tfName =
