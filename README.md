@@ -3,12 +3,12 @@
 *Motor* is an experimental Haskell library for building finite-state
 machines with type-safe transitions and effects. It draws inspiration
 from the Idris
-[ST](http://docs.idris-lang.org/en/latest/st/state.html) library.
+[ST](https://docs.idris-lang.org/en/latest/st/state.html) library.
 
 ## Usage
 
 See the [Motor module documentation on
-Hackage](http://hackage.haskell.org/package/motor) for detailed usage.
+Hackage](https://hackage.haskell.org/package/motor) for detailed usage.
 
 ## Packages
 
@@ -20,7 +20,7 @@ Hackage](http://hackage.haskell.org/package/motor) for detailed usage.
 
 ## Examples
 
-* [Door](motor/examples/Door.hs)
+* [Door](https://github.com/owickstrom/motor/blob/master/motor/examples/Door.hs)
 
 ## License
 

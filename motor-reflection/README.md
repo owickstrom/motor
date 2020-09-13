@@ -23,18 +23,11 @@ data Closed
 
 class MonadFSM m => Door (m :: Row * -> Row * -> * -> *) where
   type State m :: * -> *
-  initial
-    :: Name n
-    -> Actions m '[n !+ State m Open] r ()
-  close
-    :: Name n
-    -> Actions m '[n :-> State m Open !--> State m Closed] r ()
-  open
-    :: Name n
-    -> Actions m '[n :-> State m Closed !--> State m Open] r ()
-  end
-    :: Name n
-    -> Actions m '[n !- State m Closed] r ()
+
+  initial :: Name n -> Actions m '[n !+ State m Open] r ()
+  close :: Name n -> Actions m '[n := State m Open !--> State m Closed] r ()
+  open :: Name n -> Actions m '[n := State m Closed !--> State m Open] r ()
+  end :: Name n -> Actions m '[n !- State m Closed] r ()
 
 reflectEvents ''Door "doorEvents"
 ```
